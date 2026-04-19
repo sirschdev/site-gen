@@ -182,3 +182,9 @@ def quote_to_html_node(markdown):
   for element in elements:
     full_quote.append(element.lstrip("> "))
   return markdown_to_children_html_nodes(" ".join(full_quote))
+
+def extract_title(markdown):
+  title = re.findall(r"(?<!\S)(# .*?\n)", markdown)[0]
+  if title == None:
+    raise Exception("No Title in Document. Add Title to doc")
+  return title.lstrip("#").lstrip().rstrip("\n")

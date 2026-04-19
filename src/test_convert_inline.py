@@ -1,7 +1,7 @@
 import unittest
 
 from textnode import TextNode, TextType
-from convert_inline import text_node_to_html_node, split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_image, split_nodes_link, text_to_textnodes, markdown_to_children_html_nodes
+from convert_inline import text_node_to_html_node, split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_image, split_nodes_link, text_to_textnodes, markdown_to_children_html_nodes, extract_title
 from htmlnode import LeafNode
 
 
@@ -495,6 +495,54 @@ class TestMarkdownToInlineHTML(unittest.TestCase):
           ],
           nodes,
       )
+
+
+class TestExtractTitle(unittest.TestCase):
+  def test_extract_title_returns_h1_text_with_trailing_newline(self):
+    markdown = """# Site Title
+
+This is the first paragraph.
+
+- first item
+- second item
+"""
+
+    title = extract_title(markdown)
+
+    self.assertEqual(title, "Site Title\n")
+
+  def test_extract_title_finds_first_h1_when_other_blocks_follow(self):
+    markdown = """# Main Heading
+
+Paragraph with **bold** text and _italic_ text.
+
+> quoted line
+> continued line
+
+## Secondary Heading
+"""
+
+    title = extract_title(markdown)
+
+    self.assertEqual(title, "Main Heading\n")
+
+  def test_extract_title_raises_index_error_without_h1(self):
+    markdown = """## Not The Title
+
+Paragraph only.
+
+- first item
+- second item
+"""
+
+    with self.assertRaises(IndexError):
+      extract_title(markdown)
+
+  def test_extract_title_raises_index_error_without_trailing_newline(self):
+    markdown = "# Title without final newline"
+
+    with self.assertRaises(IndexError):
+      extract_title(markdown)
 
 if __name__ == "__main__":
     unittest.main()
